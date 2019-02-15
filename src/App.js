@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
+import Feature from './Feature'
+import Summary from './Summary'
 
 class App extends Component {
   constructor(props){
@@ -26,9 +28,9 @@ class App extends Component {
     }
   }
 
-  updateFeature(feature, newValue) {
+  updateFeature = (featureType, option) => {
     const selected = Object.assign({}, this.state.selected);
-    selected[feature] = newValue;
+    selected[featureType] = option;
     this.setState({
       selected
     });
@@ -36,42 +38,24 @@ class App extends Component {
 
   render() {
     const summary = Object.keys(this.state.selected)
-          .map(key => <div className="summary__option" key={key}>
-            <div className="summary__option__label">{key}  </div>
-            <div className="summary__option__value">{this.state.selected[key].name}</div>
-            <div className="summary__option__cost">
-              { new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD'})
-                  .format(this.state.selected[key].cost) }
-            </div>
-        </div>)
-
-    const total = Object.keys(this.state.selected)
-          .reduce((acc, curr) => acc + this.state.selected[curr].cost, 0);    
-
+          .map((selectedFeature, index) => 
+            <Summary selectedFeature={this.state.selected[selectedFeature]} key={index} />
+            )   
 
     const features = Object.keys(this.props.features)
-          .map(key => {
-            const options = this.props.features[key].map((item, index) => {
-              const selectedClass = item.name === this.state.selected[key].name ? 'feature__selected' : '';
-              const featureClass = 'feature__option ' + selectedClass;
-              return <li key={index} className="feature__item">
-                <div className={featureClass}
-                  
-                  onClick={e => this.updateFeature(key, item)}>
-                    { item.name }
-                    ({ new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD'})
-                      .format(item.cost) })
-                </div>
-              </li>
-            });
-
-            return <div className="feature" key={key}>
-              <div className="feature__name">{key}</div>
-              <ul className="feature__list">
-                { options }
-              </ul>
-            </div>
-          });      
+          .map((key, index) => {
+            return <Feature
+            selectedOption={this.state.selected[key].name}
+            key = {index}
+            featureName = {key}
+            options={this.props.features[key]}
+            updateFeature={this.updateFeature}
+            />
+        });
+        
+        
+    const total = Object.keys(this.state.selected)
+    .reduce((acc, curr) => acc + this.state.selected[curr].cost, 0); 
 
     return (
       <div className="App">
